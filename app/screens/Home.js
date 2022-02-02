@@ -6,8 +6,10 @@ import {
   ImageBackground,
   StyleSheet,
   Switch,
+  SafeAreaView,
   TouchableOpacity,
   FlatList,
+  LogBox,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { moderateScale } from "react-native-size-matters";
@@ -41,8 +43,10 @@ export default function Home() {
   ];
 
   useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+
     const client = createClient(
-      "563492ad6f91700001000001edf215fb628e4a29bca94d879bdd3f47"
+      "563492ad6f91700001000001bffe60bab42643d5a80e494233df62be"
     );
     const query = `${newQuery}`;
     client.photos.search({ query, per_page: 20 }).then((photos) => {
@@ -63,11 +67,15 @@ export default function Home() {
   return (
     <React.Fragment>
       {isImageSelected.status ? (
-        <BuyItem src={isImageSelected.image} onClose={onClosePress}></BuyItem>
+        <BuyItem
+          src={isImageSelected.image}
+          images={imageList}
+          onClose={onClosePress}
+        ></BuyItem>
       ) : null}
       {!isImageSelected.status ? (
         <React.Fragment>
-          <ScrollView flex={1} style={styles.container} nestedScrollEnabled>
+          <ScrollView flex={1} style={styles.container}>
             <ImageBackground
               source={require("../img/alexandra.jpg")}
               style={styles.imageContainer}
@@ -150,10 +158,7 @@ export default function Home() {
                 ))}
               </ScrollView>
               <FlatList
-                listMode="SCROLLVIEW"
-                scrollViewProps={{
-                  nestedScrollEnabled: true,
-                }}
+                nestedScrollEnabled
                 data={imageList.src}
                 renderItem={(item, idx) => (
                   <View
